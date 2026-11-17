@@ -1,0 +1,605 @@
+\documentclass[usepdftitle=false,aspectratio=169,usenames,dvipsnames]{beamer}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{xspace}
+\usepackage{xparse}
+\usepackage[yyyymmdd]{datetime}
+\usepackage{ulem}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{stmaryrd}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{bussproofs}
+\usepackage{mathpartir}
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage{proof}
+\usepackage{tcolorbox}
+\usepackage{relsize}
+\usepackage{comment}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta}
+\tcbuselibrary{raster}
+\captionsetup{font=tiny}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1}
+\usetikzlibrary{shapes,arrows,positioning,decorations.markings,matrix,fit,calc}
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{rline} = [draw, latex'-]
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
+\EnableBpAbbreviations
+
+\DeclareUnicodeCharacter{2081}{$_{1}$}
+\DeclareUnicodeCharacter{03B1}{$\alpha$}
+\DeclareUnicodeCharacter{2200}{$\mathbb{\forall}$}
+\DeclareUnicodeCharacter{2203}{$\mathbb{\exists}$}
+
+\DeclareUnicodeCharacter{2265}{$\ge$}
+\DeclareUnicodeCharacter{2227}{$\wedge$}
+\DeclareUnicodeCharacter{2243}{$\simeq$}
+\DeclareUnicodeCharacter{2264}{$\mathbb{\le}$}
+\DeclareUnicodeCharacter{2228}{$\vee$}
+\DeclareUnicodeCharacter{2084}{$_{4}$}
+\DeclareUnicodeCharacter{2083}{$_{3}$}
+\DeclareUnicodeCharacter{2082}{$_{2}$}
+\DeclareUnicodeCharacter{208A}{$_{+}$}
+\DeclareUnicodeCharacter{1D62}{$_{i}$}
+\DeclareUnicodeCharacter{208B}{$_{-}$}
+
+\hypersetup{
+  pdftitle={Automating Elementary Number-theoretic Proofs using Gr\"obner Bases},
+  pdfauthor={Tomaz Mascarenhas},
+  pdfkeywords={},
+  pdfborder={0 0 0},
+  draft=false,
+  bookmarksnumbered,
+  bookmarksdepth=2,
+  bookmarksopenlevel=2,
+  bookmarksopen
+}
+
+\renewcommand{\dateseparator}{--}
+
+%%% BEGIN Defining style
+\useinnertheme[outline]{chamfered}
+\setbeamertemplate{navigation symbols}{}
+\usefonttheme[onlymath]{serif}
+\usecolortheme{seahorse}
+\setbeamercolor{palette quinary}{use=structure,fg=black,bg=white}
+%%% END Defining style
+
+%%% BEGIN Biblatex for references
+\usepackage[backend=bibtex,
+doi=false,isbn=false,url=false,
+style=alphabetic,
+maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
+
+\bibliography{./refs.bib}
+
+\mathchardef\mhyphen="2D
+
+\usepackage{pifont}
+
+\newcommand{\bluecheck}{{\color{blue}\checkmark}}
+\newcommand{\greencheck}{{\color{blue}\checkmark}}
+\newcommand{\redmark}{\color{red}{\ding{55}}}
+
+\newcommand\vitem{\vfill\item}
+\newcommand\pvitem{\pause\vfill\item}
+\newcommand\pitem{\pause\item}
+
+% Algebra and number theory
+\newcommand{\Id}{\operatorname{Id}}
+\newcommand{\coprime}{\operatorname{coprime}}
+
+\setbeamertemplate{frametitle continuation}{}
+\renewcommand*{\bibfont}{\scriptsize}
+%%% END Biblatex for references
+
+%%% BEGIN DEFINING TITLE PAGE
+
+\defbeamertemplate{title page}{mystyle}[1][]
+{
+  \vbox{}
+  \vfill
+  \begingroup
+    \centering
+    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+    \vskip1em
+    \begin{beamercolorbox}[sep=0pt,center,#1,rounded=true,wd=12cm]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{author}
+      \usebeamerfont{author}\insertauthor
+    \end{beamercolorbox}
+  \endgroup
+  \vfill
+}
+
+\setbeamertemplate{title page}[mystyle]
+
+\date{Theory and Practice of SMT Solving, UFMG, 2026}
+%%% END DEFINING TITLE PAGE
+
+%%% BEGIN Meta information
+
+\author[Tomaz Mascarenhas]
+{%
+  \texorpdfstring{
+      Tomaz Mascarenhas \\ \vspace{1ex} {\small Original paper by John Harrison (CADE 2007)}
+      \vspace{3ex}
+    \begin{columns}
+      \column{.45\linewidth}
+        \centering
+        \includegraphics[height=0.25\textheight]{images/DCC_LOGO.jpg}
+      \column{.35\linewidth}
+        \includegraphics[height=0.15\textheight]{images/Logo_UFMG.jpg}
+    \end{columns}
+  }
+  {}
+}
+
+\title[Number-theoretic Proofs using Gr\"obner Bases]{Automating Elementary Number-theoretic Proofs using Gr\"obner Bases}
+
+\makeatother
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.6\paperwidth,ht=2.5ex,dp=1ex,left]{title in head/foot}%
+      {\hspace{1em}\usebeamerfont{title in head/foot}\insertshorttitle}
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.2\paperwidth,ht=2.5ex,dp=1ex,left]{title in head/foot}%
+      {\hspace{1em}\usebeamerfont{title in head/foot}Tomaz Mascarenhas, UFMG}
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.2\paperwidth,ht=2.5ex,dp=1ex,right]{title in head/foot}%
+      \insertframenumber{} / \inserttotalframenumber\hspace{1em}
+    \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatletter
+%%% END Meta information
+
+%%% BEGIN Tikz setup
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc,intersections,backgrounds, fadings}
+\usetikzlibrary{shapes}
+
+  \tikzset{
+    invisible/.style={opacity=0},
+    visible on/.style={alt=#1{}{invisible}},
+    alt/.code args={<#1>#2#3}{%
+      \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}
+    },
+  }
+
+\definecolor{BloodRed}{rgb}{.86,0,0}
+\definecolor{ao}{rgb}{0.0, 0.0, 1.0}
+\definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}
+\definecolor{ceruleanblue}{rgb}{0.16, 0.32, 0.75}
+%%% END Tikz setup
+
+\usepackage{soul,xcolor}
+\setstcolor{red}
+
+\AtBeginSection[]{
+  {
+    \setbeamertemplate{footline}{}
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
+}
+\addtocounter{framenumber}{-1}
+}
+
+\addtobeamertemplate{theorem begin}{%
+  \setbeamercolor{block title}{fg=white,bg=black}%
+  \setbeamercolor{block body}{fg=black, bg=white!90!black}%
+}{}
+
+%%% BEGIN CHANGING BULLETS STYLE
+\setbeamertemplate{itemize item}{$\vartriangleright$}
+\setbeamertemplate{itemize subitem}{$\blacktriangleright$}
+\setlength\leftmargini{1em}
+\setlength\leftmarginii{1.25em}
+\setlength\leftmarginiii{1em}
+%%% END CHANGING BULLETS STYLE
+
+\setbeamersize{text margin left=1em, text margin right=1.5em}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+%%% BEGIN Review boxes (strengths and weaknesses of the paper)
+\newtcolorbox{strengthbox}{colback=blue!4, colframe=blue!50!black, boxrule=0.5pt,
+  arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newtcolorbox{weaknessbox}{colback=red!4, colframe=red!50!black, boxrule=0.5pt,
+  arc=2pt, left=4pt, right=4pt, top=2pt, bottom=2pt}
+\newcommand{\strength}[1]{\begin{strengthbox}\small\bluecheck\ \textbf{Strength:} #1\end{strengthbox}}
+\newcommand{\weakness}[1]{\begin{weaknessbox}\small{\redmark}\ \textbf{Weakness:} #1\end{weaknessbox}}
+%%% END Review boxes
+
+\begin{document}
+
+{
+\setbeamertemplate{footline}{}
+\frame{\titlepage}
+}
+\addtocounter{framenumber}{-1}
+
+\begin{frame}
+  \frametitle{A Motivating Example}
+  \begin{itemize}
+    \item Cancellation law for congruences:
+  \end{itemize}
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+    \centering
+    $\forall a\, n\, x\, y.\;\; ax \equiv ay \pmod{n} \;\wedge\; \coprime(a, n) \;\Rightarrow\; x \equiv y \pmod{n}$
+  \end{tcolorbox}
+  \begin{itemize}
+    \vitem Polynomials ($+$, $-$, $\times$) combined with number-theoretic predicates:
+      \vspace{4pt}
+
+      \hspace{2em}
+      \begin{tabular}{@{$\blacktriangleright$\;}l@{\hspace{2em}}l}
+        $s \mid t$ & $s$ divides $t$ \\
+        $s \equiv t \pmod{u}$ & $s$ is congruent to $t$ modulo $u$ \\
+        $\coprime(s, t)$ & $s$ and $t$ have no common factor
+      \end{tabular}
+    \pvitem Elementary for a human, but hard for automated tools: z3 does not solve its SMT-LIB encoding within 20s
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Applications}
+  \begin{itemize}
+    \item Verification of programs using \texttt{div} and \texttt{mod} with a \textbf{non-constant} divisor
+      \begin{itemize}
+        \item e.g.\ verification conditions generated by Verus, Dafny, F$^\star$
+      \end{itemize}
+    \pvitem Bit-vectors of symbolic width $k$, translated to integers: arithmetic modulo $2^k$
+      \[ \mathtt{bvadd}_k(x, y) \;\rightsquigarrow\; (x + y) \bmod 2^k \]
+    \pvitem Harrison's original motivation: routine divisibility lemmas in proof assistants (HOL Light)
+      \begin{itemize}
+        \item Formal verification of an arithmetic algorithm, proof of quadratic reciprocity, \ldots
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{State of the Art}
+  \begin{itemize}
+    \item The predicates can be encoded with fresh variables, e.g.\ $s \mid t \;\rightsquigarrow\; \exists d.\; t = sd$
+      \begin{itemize}
+        \item SMT solvers: $t \bmod n \;\rightsquigarrow\; r$, with $t = nq + r \;\wedge\; 0 \le r < |n|$
+      \end{itemize}
+    \pvitem The result is \textbf{nonlinear integer arithmetic}: undecidable (Matiyasevich, 1970)
+      \begin{itemize}
+        \item General techniques: incremental linearization, cylindrical algebraic coverings with integrality constraints, \ldots
+        \item Decidable fragments are linear, e.g.\ universal Presburger arithmetic with divisibility (Lipshitz, 1978)
+      \end{itemize}
+    \pvitem Nothing specialized for divisibility combined with multiplication
+  \end{itemize}
+  \pause
+  \vfill
+  \strength{real progress on a problem with many applications, which is not well explored.}
+\end{frame}
+
+% Overview of the method. Each step is revealed with an overlay.
+\begin{frame}
+  \frametitle{Harrison's Method}
+  \begin{itemize}
+    \item Uniform procedure for formulas with $+$, $-$, $\times$, $\mid$, $\equiv$, $\coprime$ and a limited quantifier structure
+    \vitem Reduces the problem to \textbf{ideal membership}, decided with \textbf{Gr\"obner bases}
+    \vitem Sound but incomplete over $\mathbb{Z}$; complete for properties that hold in \textbf{every commutative ring}
+    \vitem Implemented in the HOL Light proof assistant
+  \end{itemize}
+  \vfill
+  \centering
+  \begin{tikzpicture}[
+      box/.style={draw, rounded corners, align=center, inner sep=3pt, text width=2.5cm, minimum height=1.3cm, font=\footnotesize},
+      arr/.style={-latex, thick, gray},
+      lab/.style={font=\scriptsize, text=gray!60!black, align=center}
+    ]
+    \node[box, draw=green!40!black, fill=green!5] (f) {Formula over $\mathbb{Z}$ \\ with $\mid$, $\equiv$, $\coprime$};
+    \node[box, draw=blue!50!black, fill=blue!5, right=1.1cm of f, visible on=<2->] (s) {Standard form \\ (polynomial equations)};
+    \node[box, draw=blue!50!black, fill=blue!5, right=1.1cm of s, visible on=<3->] (i) {Ideal membership \\ in $\mathbb{Z}[\vec{x}]$};
+    \node[box, draw=red!50!black, fill=red!5, right=1.1cm of i, visible on=<4->] (c) {Cofactors: \\ certificate and witnesses};
+    \draw[arr, visible on=<2->] (f) -- node[lab, above] {expand} (s);
+    \draw[arr, visible on=<3->] (s) -- node[lab, above] {reduce} (i);
+    \draw[arr, visible on=<4->] (i) -- node[lab, above] {Gr\"obner\\bases} (c);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outline}
+  \begin{itemize}
+    \item Introduction \bluecheck
+    \vitem Harrison's Method
+    \vitem Implementation and Evaluation
+    \vitem My Project: Harrison's Method in cvc5
+  \end{itemize}
+\end{frame}
+
+\section{Harrison's Method}
+
+\begin{frame}
+  \frametitle{Step 1: Expanding the Predicates}
+  \begin{itemize}
+    \item Each predicate abbreviates an existential formula:
+  \end{itemize}
+  \[
+    \begin{array}{rcl}
+      s \mid t & := & \exists d.\; t = sd \\
+      s \equiv t \pmod{u} & := & \exists d.\; t - s = ud \\
+      \coprime(s, t) & := & \exists x\, y.\; sx + ty = 1
+    \end{array}
+  \]
+  \vfill
+  \onslide<2->{
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+    $\forall a\, n\, x\, y.\;\; ax \equiv ay \pmod{n} \;\wedge\; \coprime(a, n) \;\Rightarrow\; x \equiv y \pmod{n}$
+    \\[4pt]
+    \onslide<3->{$\rightsquigarrow\; \forall a\, n\, x\, y.\;\; (\exists d.\; ay - ax = nd) \;\wedge\; (\exists u\, v.\; au + nv = 1) \;\Rightarrow\; \exists k.\; y - x = nk$}
+    \\[4pt]
+    \onslide<4->{$\rightsquigarrow\; \forall a\, n\, x\, y\, \red{d\, u\, v}.\;\; ay - ax = nd \;\wedge\; au + nv = 1 \;\Rightarrow\; \exists k.\; y - x = nk$}
+  \end{tcolorbox}
+  }
+  \onslide<4->{\small The existentials in the hypotheses become universal variables (prenex form).}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Step 2: Standard Form}
+  \begin{itemize}
+    \item Target: (conjunctions of) formulas of the form
+  \end{itemize}
+  \[
+    \forall \vec{x}.\;\; \bigwedge_{i=1}^{m} e_i(\vec{x}) = 0 \;\Rightarrow\; \exists y_1 \cdots y_n.\;\; p_1(\vec{x})\, y_1 + \cdots + p_n(\vec{x})\, y_n = a(\vec{x})
+  \]
+  \begin{itemize}
+    \item Hypotheses: polynomial equations. Conclusion: one equation, \textbf{linear} in the $y_j$
+    \pvitem Several equations in the conclusion: fresh auxiliary variables give a single test (e.g.\ Chinese Remainder Theorem)
+  \end{itemize}
+  \pause
+  \vfill
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+    \centering
+    $\forall a\, n\, x\, y\, d\, u\, v.\;\; \underbrace{ay - ax - nd}_{e_1} = 0 \;\wedge\; \underbrace{au + nv - 1}_{e_2} = 0 \;\Rightarrow\; \exists k.\;\; \underbrace{n}_{p_1} k = \underbrace{y - x}_{a}$
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Step 3: Ideal Membership}
+  \begin{itemize}
+    \item Ideal generated by $g_1, \dots, g_r$: \quad $\Id\langle g_1, \dots, g_r \rangle = \{\, c_1 g_1 + \dots + c_r g_r \;\mid\; c_i \in \mathbb{Z}[\vec{x}] \,\}$
+    \pvitem Test: \quad $a \in \Id\langle e_1, \dots, e_m, p_1, \dots, p_n \rangle$
+    \pvitem Sound: if $a = \sum_i f_i\, e_i + \sum_j g_j\, p_j$, then whenever all $e_i(\vec{x}) = 0$,
+      \[ a(\vec{x}) = \textstyle\sum_j g_j(\vec{x})\, p_j(\vec{x}) \]
+      so $y_j := g_j(\vec{x})$ are witnesses, given by polynomials
+  \end{itemize}
+  \pause
+  \vfill
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+    \centering
+    $y - x \;=\; (ay - ax - nd) \cdot u \;+\; (au + nv - 1) \cdot (x - y) \;+\; n \cdot \textcolor{blue}{(ud + vy - vx)}$
+    \\[4pt]
+    Witness: $k = \textcolor{blue}{ud + vy - vx}$
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Deciding Ideal Membership}
+  \begin{itemize}
+    \item Buchberger's algorithm computes a \textbf{Gr\"obner basis} $G$ of the ideal
+    \vitem $a$ is in the ideal iff $a$ reduces to $0$ by repeated division by elements of $G$
+    \vitem Recording the reductions gives the cofactors: a \textbf{certificate}
+    \vitem Checking it amounts to checking a polynomial identity, by normalizing both sides
+      \begin{itemize}
+        \item HOL Light translates it into primitive inferences: the Gr\"obner basis code is not trusted
+      \end{itemize}
+  \end{itemize}
+  \pause
+  \vfill
+  \strength{easily certifiable, which is essential in formal verification. Checking is much cheaper than solving.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sound but Incomplete}
+  \begin{itemize}
+    \item Over $\mathbb{Z}$, no test of this kind can be both sound and complete:
+      \begin{itemize}
+        \item Special case: $\forall \vec{x}.\; \bigwedge_i e_i(\vec{x}) = 0 \Rightarrow \bot$, i.e.\ a Diophantine equation has no solution: undecidable (Matiyasevich)
+        \item Ideal membership in $\mathbb{Z}[\vec{x}]$ is decidable (Aschenbrenner, 2004)
+      \end{itemize}
+    \pvitem Example: $x^2 + x$ is always even
+      \[ \forall x.\; \exists k.\; x^2 + x = 2k \quad \text{holds in } \mathbb{Z}, \quad \text{but} \quad x^2 + x \notin \Id\langle 2 \rangle \]
+    \pvitem It does not hold in every ring: in the Gaussian integers $\mathbb{Z}[i]$, $x = i$ gives $x^2 + x = i - 1$, and $\frac{i - 1}{2} \notin \mathbb{Z}[i]$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Completeness over All Rings}
+  \begin{theorem}
+    The standard form holds in \textbf{every commutative ring} iff $a \in \Id\langle e_1, \dots, e_m, p_1, \dots, p_n \rangle$ in $\mathbb{Z}[\vec{x}]$.
+  \end{theorem}
+  \begin{itemize}
+    \pitem Proof idea: the ring and equality axioms are \textbf{Horn clauses}, so proofs are Prolog-style trees
+      \begin{itemize}
+        \item Simmons: $\bigwedge_i p_i = 0 \Rightarrow p = 0$ holds in all rings iff $p \in \Id\langle p_1, \dots, p_r \rangle$ \\ (induction on the proof tree)
+        \item Horn--Herbrand: the witnesses for $\exists \vec{y}$ can be terms, i.e.\ polynomials $q_j(\vec{x})$
+      \end{itemize}
+  \end{itemize}
+  \pause
+  \vfill
+  \strength{interesting theoretical result: the method is principled and predictable, not just a heuristic.}
+  \pause
+  \weakness{the proof is only sketched and harder to follow. How often do formulas hold in all rings?}
+\end{frame}
+
+\begin{frame}
+  \frametitle{From the Integers to the Standard Form}
+  \begin{itemize}
+    \item Expanding the predicates is only valid in \textbf{some} rings:
+      \begin{itemize}
+        \item $\coprime(s, t) \Leftrightarrow \exists x\, y.\; sx + ty = 1$ holds in $\mathbb{Z}$, but not in $\mathbb{Z}[t]$: \\ $t + 1$ and $2$ have no common factor, but $(t + 1)\,p + 2\,q \neq 1$ for all $p, q$
+        \item Negated hypotheses use the integral domain property: \\
+          $\neg(t = 0) \wedge P \Rightarrow \exists \vec{y}.\; s = 0 \;\;\rightsquigarrow\;\; P \Rightarrow \exists \vec{y}.\; s\,t = 0$ \quad (fails in $\mathbb{Z}_6$: $2 \cdot 3 = 0$)
+      \end{itemize}
+    \pvitem ``A heuristic application of a decision procedure outside its domain of completeness''
+    \pvitem Extensions:
+      \begin{itemize}
+        \item $\gcd(a, b)$ becomes a variable $g$ with $g \mid a \;\wedge\; g \mid b \;\wedge\; \exists u\, v.\; au + bv = g$
+        \item Splitting $\Leftrightarrow$ and conjunctions, elimination using linear equations, \ldots
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\section{Implementation and Evaluation}
+
+\begin{frame}[fragile]
+  \frametitle{Implementation in HOL Light}
+  \begin{itemize}
+    \item Fewer than 100 lines, part of HOL Light since version 2.20
+    \item Proves all examples of the paper, e.g.\ a generalization of the Chinese Remainder Theorem:
+  \end{itemize}
+  \vfill
+  \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, xleftmargin=1em]
+# INTEGER_RULE
+   `!a1 a2 n1 n2:int.
+       (a1 == a2) (mod (gcd(n1,n2)))
+       ==> ?x. (x == a1) (mod n1) /\ (x == a2) (mod n2)`;;
+4 basis elements and 1 critical pairs
+5 basis elements and 0 critical pairs
+1 basis elements and 0 critical pairs
+Translating certificate to HOL inferences
+val it : thm =
+  |- !a1 a2 n1 n2.
+         (a1 == a2) (mod gcd (n1,n2))
+         ==> (?x. (x == a1) (mod n1) /\ (x == a2) (mod n2))
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Gr\"obner Bases over $\mathbb{Q}$, not $\mathbb{Z}$}
+  \begin{itemize}
+    \item The theorems are about ideals in $\mathbb{Z}[\vec{x}]$, but the implementation runs Buchberger's algorithm over $\mathbb{Q}[\vec{x}]$
+    \pvitem Example: $x + y = 0 \;\wedge\; x - y = 0 \;\Rightarrow\; x = 0$ fails in $\mathbb{Z}_2$ ($x = y = 1$), but over $\mathbb{Q}$:
+      \[ x = \tfrac{1}{2}\,(x + y) + \tfrac{1}{2}\,(x - y) \]
+    \pvitem Still sound: building the HOL proof fails if a cofactor is not integral. But it may fail on formulas that hold in all rings
+    \pvitem The author found ``almost no cases where the distinction mattered''
+  \end{itemize}
+  \pause
+  \vfill
+  \weakness{mismatch between the theory ($\mathbb{Z}[\vec{x}]$) and the implementation ($\mathbb{Q}[\vec{x}]$), justified only by anecdotes.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+  \begin{itemize}
+    \item Only a list of examples: cancellation, Chinese Remainder Theorem, gcd properties, \ldots
+    \vitem ``In all the examples we have tried, the ideal membership goals are easy: [...] a fraction of a second''
+    \vitem No benchmark set, no comparison with other tools, no study of scalability
+      \begin{itemize}
+        \item e.g.\ the Chinese Remainder Theorem with many moduli is left as future work
+      \end{itemize}
+    \vitem The implementation is a ``simple prototype'', and Gr\"obner bases are doubly exponential in the worst case
+  \end{itemize}
+  \pause
+  \vfill
+  \weakness{lack of systematic evaluation: there is only anecdotal evidence that the method is usable in practice.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Strengths and Weaknesses}
+  \begin{columns}[T]
+    \column{.48\linewidth}
+    \textbf{Strengths}
+    \begin{itemize}
+      \item[\bluecheck] Real progress on a problem with many applications, which is not well explored
+      \vitem[\bluecheck] Easily certifiable: checking is a polynomial identity
+      \vitem[\bluecheck] Interesting theoretical result: complete for all commutative rings
+      \vitem[\bluecheck] Accessible: algebraic concepts are introduced as they are needed
+    \end{itemize}
+    \pause
+    \column{.48\linewidth}
+    \textbf{Weaknesses}
+    \begin{itemize}
+      \item[{\redmark}] No systematic evaluation, only small examples
+      \vitem[{\redmark}] Theory over $\mathbb{Z}[\vec{x}]$, implementation over $\mathbb{Q}[\vec{x}]$
+      \vitem[{\redmark}] The completeness proof is harder to follow
+      \vitem[{\redmark}] Unclear how often formulas from practice hold in all rings
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
+\section{My Project: Harrison's Method in cvc5}
+
+\begin{frame}
+  \frametitle{Harrison's Method in cvc5}
+  \begin{itemize}
+    \item Goal: improve cvc5 on verification conditions with \texttt{div} and \texttt{mod} by non-constant divisors
+    \pvitem No predicates to expand: cvc5's preprocessing already introduces the witnesses
+      \[ (\mathtt{div}\ s\ n) \rightsquigarrow q \;\text{ with }\; n > 0 \Rightarrow nq \le s < n(q + 1), \qquad (\mathtt{mod}\ s\ n) \rightsquigarrow s - nq \]
+    \pvitem New step: for each divisor $n$, a Gr\"obner basis (CoCoALib) of $\Id\langle n, \text{asserted equalities} \rangle$ gives normal forms $s_i \equiv t_i \pmod{n}$, which yield lemmas:
+      \begin{itemize}
+        \item if $0 \le t_i < |n|$, then $s_i \bmod n = t_i$ \quad (in particular, $n \mid s_i$ if $t_i = 0$)
+        \item if $s_i$ and $s_j$ have the same normal form, then $s_i \bmod n = s_j \bmod n$
+      \end{itemize}
+  \end{itemize}
+  \pause
+  \vfill
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+    \centering
+    $ay - ax = nd \;\wedge\; au + nv = 1 \;\wedge\; n > 0 \;\Rightarrow\; (y - x) \bmod n = 0$
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Integration and Results}
+  \centering
+  \begin{tikzpicture}[
+      box/.style={draw, rounded corners, align=center, inner sep=4pt, text width=3.2cm, minimum height=1.1cm, font=\footnotesize},
+      arr/.style={-latex, thick, gray},
+      lab/.style={font=\scriptsize, text=gray!60!black, align=center}
+    ]
+    \node[box, draw=gray!60!black, fill=gray!5] (cheap) {Cheap lemmas \\ \scriptsize sign, magnitude, \ldots};
+    \node[box, draw=blue!50!black, fill=blue!10, thick, right=1.4cm of cheap] (ideal) {\textbf{Ideal membership} \\ \scriptsize new step};
+    \node[box, draw=gray!60!black, fill=gray!5, right=1.4cm of ideal] (exp) {Expensive steps \\ \scriptsize tangent planes, coverings};
+    \draw[arr] (cheap) -- (ideal);
+    \draw[arr] (ideal) -- node[lab, above] {derived\\facts} (exp);
+    \draw[-latex, gray!50] ([yshift=-0.35cm]cheap.south west) -- node[lab, below] {increasing cost} ([yshift=-0.35cm]exp.south east);
+  \end{tikzpicture}
+  \vfill
+  \raggedright
+  \begin{itemize}
+    \item<2-> Parametric bit-vectors: from $622$ to $662$ solved problems. Verus: same number of solved problems. We are still improving the implementation
+    \vitem<3-> Relation to the paper:
+      \begin{itemize}
+        \item Same core test, but used to generate lemmas inside an SMT solver, not as a standalone procedure
+        \item Same gap: Gr\"obner bases over $\mathbb{Q}$, integrality of the cofactor of $n$ is checked
+        \item Evaluation on benchmark sets, which the paper lacks
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{document}

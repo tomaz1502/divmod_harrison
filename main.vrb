@@ -1,0 +1,20 @@
+\frametitle{Implementation in HOL Light}
+  \begin{itemize}
+    \item Fewer than 100 lines, part of HOL Light since version 2.20
+    \item Proves all examples of the paper, e.g.\ a generalization of the Chinese Remainder Theorem:
+  \end{itemize}
+  \vfill
+  \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, columns=fullflexible, keepspaces=true, xleftmargin=1em]
+# INTEGER_RULE
+   `!a1 a2 n1 n2:int.
+       (a1 == a2) (mod (gcd(n1,n2)))
+       ==> ?x. (x == a1) (mod n1) /\ (x == a2) (mod n2)`;;
+4 basis elements and 1 critical pairs
+5 basis elements and 0 critical pairs
+1 basis elements and 0 critical pairs
+Translating certificate to HOL inferences
+val it : thm =
+  |- !a1 a2 n1 n2.
+         (a1 == a2) (mod gcd (n1,n2))
+         ==> (?x. (x == a1) (mod n1) /\ (x == a2) (mod n2))
+  \end{lstlisting}
