@@ -334,7 +334,7 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
     \item Introduction \bluecheck
     \vitem Harrison's Method
     \vitem Implementation and Evaluation
-    \vitem My Project: Harrison's Method in cvc5
+    \vitem Integrating Harrison's Method in cvc5
   \end{itemize}
 \end{frame}
 
@@ -399,17 +399,15 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
   \end{tcolorbox}
   \begin{itemize}
     \item Idea: find \textbf{polynomials} $c_1$, $c_2$, $c_3$ that make the following a polynomial identity:
-      \[ a \;=\; c_1 \cdot e_1 \;+\; c_2 \cdot e_2 \;+\; c_3 \cdot p_1 \]
+      \[ y - x \;=\; c_1 \cdot (ay - ax - nd) \;+\; c_2 \cdot (au + nv - 1) \;+\; c_3 \cdot n \]
   \end{itemize}
-  \onslide<2->{
   \begin{tcolorbox}[colback=blue!5,colframe=blue!50!black,title=Solution,top=1pt,bottom=1pt]
     \centering
-    $y - x \;=\; \textcolor<3->{gray}{\underbrace{u}_{c_1} \cdot\, (ay - ax - nd)} \;+\; \textcolor<3->{gray}{\underbrace{(x - y)}_{c_2} \cdot\, (au + nv - 1)} \;+\; \underbrace{\textcolor{blue}{(ud + vy - vx)}}_{c_3} \cdot\, n$
+    $y - x \;=\; \textcolor{gray}{\underbrace{u}_{c_1} \cdot\, (ay - ax - nd)} \;+\; \textcolor{gray}{\underbrace{(x - y)}_{c_2} \cdot\, (au + nv - 1)} \;+\; \underbrace{\textcolor{blue}{(ud + vy - vx)}}_{c_3} \cdot\, n$
   \end{tcolorbox}
-  }
   \begin{itemize}
-    \item<3-> When the hypotheses hold, $e_1 = e_2 = 0$, and all that is left is $y - x = c_3 \cdot n$
-    \item<4-> Thus $k := \textcolor{blue}{ud + vy - vx}$ is a witness.
+    \item When the hypotheses hold, $e_1 = e_2 = 0$, and all that is left is $y - x = c_3 \cdot n$
+    \item Thus $k := \textcolor{blue}{ud + vy - vx}$ is a witness.
   \end{itemize}
 \end{frame}
 
@@ -426,17 +424,22 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
       \[ a(\vec{x}) = \textstyle\sum_j g_j(\vec{x})\, p_j(\vec{x}) \]
       so the $g_j(\vec{x})$ are witnesses for the $y_j$
   \end{itemize}
+  \onslide<1->
+  \vfill
+  \begin{tcolorbox}[colback=gray!6,colframe=gray!60!black,title=Standard form,top=1pt,bottom=1pt]
+    \centering
+    $\forall \vec{x}.\;\; \textstyle\bigwedge_{i=1}^{m} e_i(\vec{x}) = 0 \;\Rightarrow\; \exists y_1 \cdots y_n.\;\; p_1(\vec{x})\, y_1 + \cdots + p_n(\vec{x})\, y_n = a(\vec{x})$
+  \end{tcolorbox}
 \end{frame}
 
 \begin{frame}
   \frametitle{Deciding Ideal Membership}
   \begin{itemize}
-    \item Buchberger's algorithm computes a \textbf{Gr\"obner basis} $G$ of the ideal
+    \item Buchberger's algorithm computes a \textbf{Gr\"obner basis} $G$ of the ideal, which gives a way to test ideal membership.
       \begin{itemize}
         \item For $n$ variables it takes $\mathcal{O}(2^{2^n})$ steps, but it works well in practice.
       \end{itemize}
-    \vitem $a$ is in the ideal iff $a$ reduces to $0$ by repeated division by elements of $G$
-    \vitem Recording the reductions gives the cofactors: a \textbf{certificate}
+    \vitem The algorithm can be extended to provide the factors that certify the membership.
     \vitem Checking it amounts to checking a polynomial identity, by normalizing both sides
       \begin{itemize}
         \item HOL Light translates it into primitive inferences: the Gr\"obner basis code is not trusted
@@ -457,11 +460,12 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
       \end{itemize}
     \pvitem Example: $x^2 + x$ is always even
       \[ \forall x.\; \exists k.\; x^2 + x = 2k \quad \text{holds in } \mathbb{Z}, \quad \text{but} \quad x^2 + x \notin \langle 2 \rangle \]
+    \pvitem A fail of the test \textbf{does not} let us conclude that the formula is false.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Completeness over All Rings}
+  \frametitle{Completeness for Formulas over All Rings}
   \begin{itemize}
     \item Even though the method is not complete, the author proves that it can decide formulas that do not depend on properties specific to the integers:
   \end{itemize}
@@ -479,12 +483,12 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
       a \in \langle e_1, \dots, e_m, p_1, \dots, p_n \rangle \;\text{ in }\; \mathbb{Z}[\vec{x}]
     \]
   \end{theorem}
-  {\footnotesize $T_{\mathrm{CR}}$: theory of commutative rings with unity. $T_{\mathrm{CR}} \models \varphi$ means that $\mathcal{R} \models \varphi$ for every such ring $\mathcal{R}$.}
+  {\footnotesize $T_{\mathrm{CR}}$: theory of commutative rings with unity.}
   \pause
   \vfill
   \strength{interesting theoretical result: the method is principled and predictable, not just a heuristic.}
   \pause
-  \weakness{How often do formulas hold in all rings? The author doesn't explore this question}
+  \weakness{How often do formulas hold in all rings? The author doesn't explore this direction}
 \end{frame}
 
 \section{Implementation and Evaluation}
@@ -515,7 +519,7 @@ val it : thm =
 \begin{frame}
   \frametitle{Gr\"obner Bases over $\mathbb{Q}$, not $\mathbb{Z}$}
   \begin{itemize}
-    \item The theorems are about ideals in $\mathbb{Z}[\vec{x}]$, but the implementation runs Buchberger's algorithm over $\mathbb{Q}[\vec{x}]$
+    \item The theorems are about ideals in $\mathbb{Z}[\vec{x}]$, but the implementation runs Buchberger's algorithm over $\mathbb{Q}[\vec{x}]$: it can find factors with non-integer coefficients.
     \pvitem Example: ``every integer is even'', $\forall x.\; \exists k.\; 2k = x$, is false in $\mathbb{Z}$, and indeed $x \notin \langle 2 \rangle$ in $\mathbb{Z}[x]$. But in $\mathbb{Q}[x]$:
       \[ x = \tfrac{x}{2} \cdot 2, \quad \text{so } x \in \langle 2 \rangle, \text{ with the ``witness'' } k = \tfrac{x}{2} \]
     \pvitem Still sound: building the HOL proof fails if a cofactor is not integral. But it may fail on formulas that hold in all rings
@@ -545,16 +549,13 @@ val it : thm =
   \begin{itemize}
     \item Goal: improve cvc5 on verification conditions with \texttt{div} and \texttt{mod} by non-constant divisors
     \pvitem No predicates to expand: cvc5's preprocessing already introduces the witnesses
+      \abovedisplayskip=4pt \belowdisplayskip=4pt
       \[ (\mathtt{div}\ s\ n) \rightsquigarrow q \;\text{ with }\; n > 0 \Rightarrow nq \le s < n(q + 1), \qquad (\mathtt{mod}\ s\ n) \rightsquigarrow s - nq \]
-    \pvitem New step: for each term $s \bmod n$, run Harrison's test with the equalities asserted:
-      \begin{itemize}
-        \item If it proves $\divides(n, s)$, we learn the lemma $s \bmod n = 0$
-        \item If it proves $\congruent(s, s', n)$ for two such terms, we learn $s \bmod n = s' \bmod n$
-      \end{itemize}
+    \pvitem In SMT there is no goal to prove: we use Harrison's test to generate \textbf{lemmas} about the remainders from the equalities that are currently asserted
   \end{itemize}
   \pause
   \vfill
-  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example,top=1pt,bottom=1pt]
     \centering
     $ay - ax = nd \;\wedge\; au + nv = 1 \;\wedge\; n > 0 \;\Rightarrow\; (y - x) \bmod n = 0$
   \end{tcolorbox}
@@ -582,7 +583,7 @@ val it : thm =
     \vitem<3-> Relation to the paper:
       \begin{itemize}
         \item Same core test, but used to generate lemmas inside an SMT solver, not as a standalone procedure
-        \item Same gap: Gr\"obner bases over $\mathbb{Q}$, integrality of the cofactor of $n$ is checked
+        \item Same gap: Gr\"obner bases over $\mathbb{Q}$ instead of $\mathbb{Z}$
         \item Evaluation on benchmark sets, which the paper lacks
       \end{itemize}
   \end{itemize}
