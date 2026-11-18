@@ -101,6 +101,8 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
 % Algebra and number theory
 \newcommand{\Id}{\operatorname{Id}}
 \newcommand{\coprime}{\operatorname{coprime}}
+\newcommand{\divides}{\operatorname{divides}}
+\newcommand{\congruent}{\operatorname{congruent}}
 
 \setbeamertemplate{frametitle continuation}{}
 \renewcommand*{\bibfont}{\scriptsize}
@@ -116,7 +118,9 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
     \centering
     {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
     \vskip1em
-    \begin{beamercolorbox}[sep=0pt,center,#1,rounded=true,wd=12cm]{title}
+    % The chamfered theme places the text 2*(corners+padding) = 8pt to the right of
+    % where beamercolorbox expects, so we center it on 8pt less to keep it centered.
+    \begin{beamercolorbox}[sep=0pt,leftskip=0pt plus1fill,rightskip=8pt plus1fill,#1,rounded=true,wd=12cm]{title}
       \usebeamerfont{title}\inserttitle\par%
       \ifx\insertsubtitle\@empty%
       \else%
@@ -142,7 +146,7 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
 \author[Tomaz Mascarenhas]
 {%
   \texorpdfstring{
-      Tomaz Mascarenhas \\ \vspace{1ex} {\small Original paper by John Harrison (CADE 2007)}
+      Tomaz Mascarenhas \\ \vspace{1ex} {\footnotesize Original paper by John Harrison (CADE 2007)}
       \vspace{3ex}
     \begin{columns}
       \column{.45\linewidth}
@@ -254,19 +258,19 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
   \end{itemize}
   \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
     \centering
-    $\forall a\, n\, x\, y.\;\; ax \equiv ay \pmod{n} \;\wedge\; \coprime(a, n) \;\Rightarrow\; x \equiv y \pmod{n}$
+    $\forall a\, n\, x\, y \in \mathbb{Z} .\;\; \congruent(ax, ay, n) \;\wedge\; \coprime(a, n) \;\Rightarrow\; \congruent(x, y, n)$
   \end{tcolorbox}
   \begin{itemize}
-    \vitem Polynomials ($+$, $-$, $\times$) combined with number-theoretic predicates:
+    \vitem Nonlinear integer arithmetic augmented with number-theoretic predicates:
       \vspace{4pt}
 
       \hspace{2em}
       \begin{tabular}{@{$\blacktriangleright$\;}l@{\hspace{2em}}l}
-        $s \mid t$ & $s$ divides $t$ \\
-        $s \equiv t \pmod{u}$ & $s$ is congruent to $t$ modulo $u$ \\
+        $\divides(s, t)$ & $s$ divides $t$ \\
+        $\congruent(s, t, u)$ & $s$ is congruent to $t$ modulo $u$ ($s \equiv t \text{ (mod u)}$) \\
         $\coprime(s, t)$ & $s$ and $t$ have no common factor
       \end{tabular}
-    \pvitem Elementary for a human, but hard for automated tools: z3 does not solve its SMT-LIB encoding within 20s
+    \pvitem Neither cvc5 nor z3 solve the SMT-LIB encoding of the problem above within 1 minute.
   \end{itemize}
 \end{frame}
 
@@ -280,25 +284,18 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
     \pvitem Bit-vectors of symbolic width $k$, translated to integers: arithmetic modulo $2^k$
       \[ \mathtt{bvadd}_k(x, y) \;\rightsquigarrow\; (x + y) \bmod 2^k \]
     \pvitem Harrison's original motivation: routine divisibility lemmas in proof assistants (HOL Light)
-      \begin{itemize}
-        \item Formal verification of an arithmetic algorithm, proof of quadratic reciprocity, \ldots
-      \end{itemize}
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{State of the Art}
   \begin{itemize}
-    \item The predicates can be encoded with fresh variables, e.g.\ $s \mid t \;\rightsquigarrow\; \exists d.\; t = sd$
+    \item The predicates can be encoded with fresh variables, e.g.\ $\divides(s, t) \;\rightsquigarrow\; \exists d.\; t = sd$
+    \pvitem The result is nonlinear even for problems that originally don't contain multiplication.
       \begin{itemize}
-        \item SMT solvers: $t \bmod n \;\rightsquigarrow\; r$, with $t = nq + r \;\wedge\; 0 \le r < |n|$
+        \item General techniques: incremental linearization, cylindrical algebraic coverings with branch and bound \ldots
       \end{itemize}
-    \pvitem The result is \textbf{nonlinear integer arithmetic}: undecidable (Matiyasevich, 1970)
-      \begin{itemize}
-        \item General techniques: incremental linearization, cylindrical algebraic coverings with integrality constraints, \ldots
-        \item Decidable fragments are linear, e.g.\ universal Presburger arithmetic with divisibility (Lipshitz, 1978)
-      \end{itemize}
-    \pvitem Nothing specialized for divisibility combined with multiplication
+    \pvitem There is currently no method designed for handling divisibility constraints.
   \end{itemize}
   \pause
   \vfill
@@ -309,7 +306,7 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
 \begin{frame}
   \frametitle{Harrison's Method}
   \begin{itemize}
-    \item Uniform procedure for formulas with $+$, $-$, $\times$, $\mid$, $\equiv$, $\coprime$ and a limited quantifier structure
+    \item Uniform procedure for formulas with $+$, $-$, $\times$, $\divides$, $\congruent$, $\coprime$ and a limited quantifier structure
     \vitem Reduces the problem to \textbf{ideal membership}, decided with \textbf{Gr\"obner bases}
     \vitem Sound but incomplete over $\mathbb{Z}$; complete for properties that hold in \textbf{every commutative ring}
     \vitem Implemented in the HOL Light proof assistant
@@ -321,13 +318,13 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
       arr/.style={-latex, thick, gray},
       lab/.style={font=\scriptsize, text=gray!60!black, align=center}
     ]
-    \node[box, draw=green!40!black, fill=green!5] (f) {Formula over $\mathbb{Z}$ \\ with $\mid$, $\equiv$, $\coprime$};
-    \node[box, draw=blue!50!black, fill=blue!5, right=1.1cm of f, visible on=<2->] (s) {Standard form \\ (polynomial equations)};
+    \node[box, draw=green!40!black, fill=green!5] (f) {Formula over $\mathbb{Z}$ \\ with $\divides$, \\ $\congruent$, $\coprime$};
+    \node[box, draw=blue!50!black, fill=blue!5, right=1.1cm of f, visible on=<2->] (s) {Standard form \\ (set of polynomial equations)};
     \node[box, draw=blue!50!black, fill=blue!5, right=1.1cm of s, visible on=<3->] (i) {Ideal membership \\ in $\mathbb{Z}[\vec{x}]$};
     \node[box, draw=red!50!black, fill=red!5, right=1.1cm of i, visible on=<4->] (c) {Cofactors: \\ certificate and witnesses};
-    \draw[arr, visible on=<2->] (f) -- node[lab, above] {expand} (s);
-    \draw[arr, visible on=<3->] (s) -- node[lab, above] {reduce} (i);
-    \draw[arr, visible on=<4->] (i) -- node[lab, above] {Gr\"obner\\bases} (c);
+    \draw[arr, visible on=<2->] (f) -- node[lab, above] {} (s);
+    \draw[arr, visible on=<3->] (s) -- node[lab, above] {} (i);
+    \draw[arr, visible on=<4->] (i) -- node[lab, above] {} (c);
   \end{tikzpicture}
 \end{frame}
 
@@ -350,15 +347,15 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
   \end{itemize}
   \[
     \begin{array}{rcl}
-      s \mid t & := & \exists d.\; t = sd \\
-      s \equiv t \pmod{u} & := & \exists d.\; t - s = ud \\
+      \divides(s, t) & := & \exists d.\; t = sd \\
+      \congruent(s, t, u) & := & \exists d.\; t - s = ud \\
       \coprime(s, t) & := & \exists x\, y.\; sx + ty = 1
     \end{array}
   \]
   \vfill
   \onslide<2->{
   \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
-    $\forall a\, n\, x\, y.\;\; ax \equiv ay \pmod{n} \;\wedge\; \coprime(a, n) \;\Rightarrow\; x \equiv y \pmod{n}$
+    $\forall a\, n\, x\, y.\;\; \congruent(ax, ay, n) \;\wedge\; \coprime(a, n) \;\Rightarrow\; \congruent(x, y, n)$
     \\[4pt]
     \onslide<3->{$\rightsquigarrow\; \forall a\, n\, x\, y.\;\; (\exists d.\; ay - ax = nd) \;\wedge\; (\exists u\, v.\; au + nv = 1) \;\Rightarrow\; \exists k.\; y - x = nk$}
     \\[4pt]
@@ -369,16 +366,22 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Step 2: Standard Form}
+  \frametitle{Standard Form}
   \begin{itemize}
-    \item Target: (conjunctions of) formulas of the form
+    \item Target: formulas of the form
   \end{itemize}
   \[
-    \forall \vec{x}.\;\; \bigwedge_{i=1}^{m} e_i(\vec{x}) = 0 \;\Rightarrow\; \exists y_1 \cdots y_n.\;\; p_1(\vec{x})\, y_1 + \cdots + p_n(\vec{x})\, y_n = a(\vec{x})
+    \forall \vec{x}.\;\; \bigwedge_{i=1}^{m} e_i(\vec{x}) = 0 \;\Rightarrow\; \exists y_1 \cdots y_n.\;\;
+    \begin{array}[t]{@{}l@{}}
+      p_{11}(\vec{x})\, y_1 + \cdots + p_{1n}(\vec{x})\, y_n = a_1(\vec{x}) \;\wedge \\
+      \qquad \cdots \;\wedge \\
+      p_{k1}(\vec{x})\, y_1 + \cdots + p_{kn}(\vec{x})\, y_n = a_k(\vec{x})
+    \end{array}
   \]
   \begin{itemize}
-    \item Hypotheses: polynomial equations. Conclusion: one equation, \textbf{linear} in the $y_j$
-    \pvitem Several equations in the conclusion: fresh auxiliary variables give a single test (e.g.\ Chinese Remainder Theorem)
+    \item Hypotheses: polynomial equations. Conclusion: $k$ equations, each \textbf{linear} in the $y_j$
+    \pvitem Divisibility constraints are encoded with existential variables, thus they naturally fall into this form.
+    \pvitem From now on, $k = 1$: we write $p_j$ for $p_{1j}$ and $a$ for $a_1$
   \end{itemize}
   \pause
   \vfill
@@ -389,17 +392,20 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Step 3: Ideal Membership}
+  \frametitle{Step 2: Ideal Membership}
+  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example,top=1pt,bottom=1pt,after skip=6pt]
+    \centering
+    $\forall a\, n\, x\, y\, d\, u\, v.\;\; \underbrace{ay - ax - nd}_{e_1} = 0 \;\wedge\; \underbrace{au + nv - 1}_{e_2} = 0 \;\Rightarrow\; \exists k.\;\; \underbrace{n}_{p_1} k = \underbrace{y - x}_{a}$
+  \end{tcolorbox}
   \begin{itemize}
-    \item Ideal generated by $g_1, \dots, g_r$: \quad $\Id\langle g_1, \dots, g_r \rangle = \{\, c_1 g_1 + \dots + c_r g_r \;\mid\; c_i \in \mathbb{Z}[\vec{x}] \,\}$
-    \pvitem Test: \quad $a \in \Id\langle e_1, \dots, e_m, p_1, \dots, p_n \rangle$
+    \item Ideal generated by $g_1, \dots, g_r$: \quad $\langle g_1, \dots, g_r \rangle = \{\, c_1 g_1 + \dots + c_r g_r \;\mid\; c_i \in \mathbb{Z}[\vec{x}] \,\}$
+    \pvitem Test: \quad $a \in \langle e_1, \dots, e_m, p_1, \dots, p_n \rangle$
     \pvitem Sound: if $a = \sum_i f_i\, e_i + \sum_j g_j\, p_j$, then whenever all $e_i(\vec{x}) = 0$,
       \[ a(\vec{x}) = \textstyle\sum_j g_j(\vec{x})\, p_j(\vec{x}) \]
-      so $y_j := g_j(\vec{x})$ are witnesses, given by polynomials
   \end{itemize}
   \pause
   \vfill
-  \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Example]
+  \begin{tcolorbox}[colback=blue!5,colframe=blue!50!black,title=Solution]
     \centering
     $y - x \;=\; (ay - ax - nd) \cdot u \;+\; (au + nv - 1) \cdot (x - y) \;+\; n \cdot \textcolor{blue}{(ud + vy - vx)}$
     \\[4pt]
@@ -428,7 +434,7 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
   \begin{itemize}
     \item Over $\mathbb{Z}$, no test of this kind can be both sound and complete:
       \begin{itemize}
-        \item Special case: $\forall \vec{x}.\; \bigwedge_i e_i(\vec{x}) = 0 \Rightarrow \bot$, i.e.\ a Diophantine equation has no solution: undecidable (Matiyasevich)
+        \item Special case: $\forall \vec{x}.\; \bigwedge_i e_i(\vec{x}) = 0 \Rightarrow \bot$, i.e.\ a Diophantine equation has no solution: undecidable
         \item Ideal membership in $\mathbb{Z}[\vec{x}]$ is decidable (Aschenbrenner, 2004)
       \end{itemize}
     \pvitem Example: $x^2 + x$ is always even
@@ -442,18 +448,11 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
   \begin{theorem}
     The standard form holds in \textbf{every commutative ring} iff $a \in \Id\langle e_1, \dots, e_m, p_1, \dots, p_n \rangle$ in $\mathbb{Z}[\vec{x}]$.
   \end{theorem}
-  \begin{itemize}
-    \pitem Proof idea: the ring and equality axioms are \textbf{Horn clauses}, so proofs are Prolog-style trees
-      \begin{itemize}
-        \item Simmons: $\bigwedge_i p_i = 0 \Rightarrow p = 0$ holds in all rings iff $p \in \Id\langle p_1, \dots, p_r \rangle$ \\ (induction on the proof tree)
-        \item Horn--Herbrand: the witnesses for $\exists \vec{y}$ can be terms, i.e.\ polynomials $q_j(\vec{x})$
-      \end{itemize}
-  \end{itemize}
   \pause
   \vfill
   \strength{interesting theoretical result: the method is principled and predictable, not just a heuristic.}
   \pause
-  \weakness{the proof is only sketched and harder to follow. How often do formulas hold in all rings?}
+  \weakness{the completeness proof is harder to follow than the rest of the paper. How often do formulas hold in all rings?}
 \end{frame}
 
 \begin{frame}
@@ -468,7 +467,7 @@ maxalphanames= 4, maxcitenames = 3, minalphanames = 3, minnames = 3]{biblatex}
     \pvitem ``A heuristic application of a decision procedure outside its domain of completeness''
     \pvitem Extensions:
       \begin{itemize}
-        \item $\gcd(a, b)$ becomes a variable $g$ with $g \mid a \;\wedge\; g \mid b \;\wedge\; \exists u\, v.\; au + bv = g$
+        \item $\gcd(a, b)$ becomes a variable $g$ with $\divides(g, a) \;\wedge\; \divides(g, b) \;\wedge\; \exists u\, v.\; au + bv = g$
         \item Splitting $\Leftrightarrow$ and conjunctions, elimination using linear equations, \ldots
       \end{itemize}
   \end{itemize}
@@ -560,9 +559,9 @@ val it : thm =
     \item Goal: improve cvc5 on verification conditions with \texttt{div} and \texttt{mod} by non-constant divisors
     \pvitem No predicates to expand: cvc5's preprocessing already introduces the witnesses
       \[ (\mathtt{div}\ s\ n) \rightsquigarrow q \;\text{ with }\; n > 0 \Rightarrow nq \le s < n(q + 1), \qquad (\mathtt{mod}\ s\ n) \rightsquigarrow s - nq \]
-    \pvitem New step: for each divisor $n$, a Gr\"obner basis (CoCoALib) of $\Id\langle n, \text{asserted equalities} \rangle$ gives normal forms $s_i \equiv t_i \pmod{n}$, which yield lemmas:
+    \pvitem New step: for each divisor $n$, a Gr\"obner basis (CoCoALib) of $\Id\langle n, \text{asserted equalities} \rangle$ gives normal forms $t_i$ with $\congruent(s_i, t_i, n)$, which yield lemmas:
       \begin{itemize}
-        \item if $0 \le t_i < |n|$, then $s_i \bmod n = t_i$ \quad (in particular, $n \mid s_i$ if $t_i = 0$)
+        \item if $0 \le t_i < |n|$, then $s_i \bmod n = t_i$ \quad (in particular, $\divides(n, s_i)$ if $t_i = 0$)
         \item if $s_i$ and $s_j$ have the same normal form, then $s_i \bmod n = s_j \bmod n$
       \end{itemize}
   \end{itemize}
